@@ -1,142 +1,130 @@
--- &b&lElehxy&d&lSMP &c» &r Elite Hub V10 - Final Stability & Color Update
-local CoreGui = game:GetService("CoreGui")
+-- &b&lElehxy&d&lSMP &c» &r Elite Hub V11 - Kompatibilitäts-Fix
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local LP = game:GetService("Players").LocalPlayer
-local Camera = workspace.CurrentCamera
+local CoreGui = game:GetService("CoreGui")
 
--- Alte GUI entfernen
-if CoreGui:FindFirstChild("ElehxyEliteV10") then CoreGui.ElehxyEliteV10:Destroy() end
+-- Alte Reste entfernen
+if CoreGui:FindFirstChild("ElehxyHubV11") then CoreGui.ElehxyHubV11:Destroy() end
 
 -- SETTINGS
 _G.PlayerESP = false
 _G.Tracers = false
 _G.LootESP = false
-_G.TracerColor = Color3.fromRGB(255, 0, 0)
-local tracerLines = {}
+_G.MainColor = Color3.fromRGB(220, 20, 60)
 
--- 1. STABILE GUI STRUKTUR
-local screenGui = Instance.new("ScreenGui", CoreGui)
-screenGui.Name = "ElehxyEliteV10"
+-- 1. GUI ERSTELLEN (Einfach & Sicher)
+local sg = Instance.new("ScreenGui", CoreGui)
+sg.Name = "ElehxyHubV11"
 
-local main = Instance.new("Frame", screenGui)
-main.Size = UDim2.new(0, 400, 0, 350)
-main.Position = UDim2.new(0.5, -200, 0.5, -175)
-main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
-main.Active = true
-main.Draggable = true
+local frame = Instance.new("Frame", sg)
+frame.Size = UDim2.new(0, 220, 0, 300)
+frame.Position = UDim2.new(0.05, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+Instance.new("UICorner", frame)
 
--- Titel
-local title = Instance.new("TextLabel", main)
+local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 40)
-title.Text = "ELEHXY ELITE V10 [K]"
-title.TextColor3 = Color3.fromRGB(220, 20, 60)
+title.Text = "ELEHXY HUB V11 [K]"
+title.TextColor3 = _G.MainColor
 title.Font = Enum.Font.GothamBold
-title.TextSize = 18
 title.BackgroundTransparency = 1
 
--- Scroll Bereich für Buttons
-local container = Instance.new("ScrollingFrame", main)
-container.Size = UDim2.new(1, -20, 1, -60)
-container.Position = UDim2.new(0, 10, 0, 50)
-container.BackgroundTransparency = 1
-container.ScrollBarThickness = 2
-local layout = Instance.new("UIListLayout", container)
-layout.Padding = UDim.new(0, 8)
+local layout = Instance.new("UIListLayout", frame)
+layout.Padding = UDim.new(0, 5)
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- 2. FUNKTIONEN FÜR DIE BUTTONS
-local function makeToggle(name, callback)
-    local btn = Instance.new("TextButton", container)
-    btn.Size = UDim2.new(1, 0, 0, 35)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    btn.Text = name .. ": OFF"
-    btn.TextColor3 = Color3.new(1,1,1)
+-- BUTTON FUNKTION
+local function addBtn(name, callback)
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0, 200, 0, 35)
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Text = name
+    btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Font = Enum.Font.Gotham
     Instance.new("UICorner", btn)
-
-    local state = false
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.Text = name .. ": " .. (state and "ON" or "OFF")
-        btn.BackgroundColor3 = state and Color3.fromRGB(220, 20, 60) or Color3.fromRGB(30, 30, 30)
-        callback(state)
-    end)
-end
-
-local function makeColorBtn(name, color)
-    local btn = Instance.new("TextButton", container)
-    btn.Size = UDim2.new(1, 0, 0, 30)
-    btn.BackgroundColor3 = color
-    btn.Text = "Set Tracer Color: " .. name
-    btn.TextColor3 = Color3.new(1,1,1)
-    Instance.new("UICorner", btn)
     
     btn.MouseButton1Click:Connect(function()
-        _G.TracerColor = color
+        callback(btn)
     end)
 end
 
--- 3. FEATURES
-makeToggle("Player ESP", function(v) _G.PlayerESP = v end)
-makeToggle("Player Tracers (Lines)", function(v) _G.Tracers = v end)
-makeToggle("Universal Loot ESP", function(v) _G.LootESP = v end)
+-- 2. DIE FEATURES
+addBtn("Toggle Player ESP", function(b)
+    _G.PlayerESP = not _G.PlayerESP
+    b.BackgroundColor3 = _G.PlayerESP and _G.MainColor or Color3.fromRGB(40, 40, 40)
+end)
 
--- Farbauswahl für die Linien
-makeColorBtn("Red", Color3.fromRGB(255, 0, 0))
-makeColorBtn("Cyan", Color3.fromRGB(0, 255, 255))
-makeColorBtn("Green", Color3.fromRGB(0, 255, 0))
-makeColorBtn("Yellow", Color3.fromRGB(255, 255, 0))
+addBtn("Toggle Tracers", function(b)
+    _G.Tracers = not _G.Tracers
+    b.BackgroundColor3 = _G.Tracers and _G.MainColor or Color3.fromRGB(40, 40, 40)
+end)
 
--- 4. DIE LOGIK (ESP & TRACERS)
+addBtn("Toggle Loot ESP", function(b)
+    _G.LootESP = not _G.LootESP
+    b.BackgroundColor3 = _G.LootESP and _G.MainColor or Color3.fromRGB(40, 40, 40)
+end)
+
+addBtn("Cyan Color", function() _G.MainColor = Color3.fromRGB(0, 255, 255) title.TextColor3 = _G.MainColor end)
+addBtn("Red Color", function() _G.MainColor = Color3.fromRGB(220, 20, 60) title.TextColor3 = _G.MainColor end)
+
+-- 3. ESP & TRACERS LOGIK
 RunService.RenderStepped:Connect(function()
-    if not screenGui or not screenGui.Parent then return end
-    
-    for _, p in pairs(game.Players:GetPlayers()) do
+    for _, p in pairs(Players:GetPlayers()) do
         if p ~= LP and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            -- PLAYER ESP (Highlight)
             local char = p.Character
-            local esp = char:FindFirstChild("EliteHighlight")
+            
+            -- Highlight (ESP)
+            local h = char:FindFirstChild("EliteHighlight")
             if _G.PlayerESP then
-                if not esp then
-                    esp = Instance.new("Highlight", char)
-                    esp.Name = "EliteHighlight"
-                    esp.FillColor = _G.TracerColor
-                    esp.OutlineColor = Color3.new(1,1,1)
+                if not h then
+                    h = Instance.new("Highlight", char)
+                    h.Name = "EliteHighlight"
                 end
-            elseif esp then esp:Destroy() end
-
-            -- TRACERS (Lines)
-            local pos, onScreen = Camera:WorldToViewportPoint(char.HumanoidRootPart.Position)
-            if _G.Tracers and onScreen then
-                local line = tracerLines[p.Name] or Drawing.new("Line")
-                line.Visible = true
-                line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-                line.To = Vector2.new(pos.X, pos.Y)
-                line.Color = _G.TracerColor
-                line.Thickness = 1.5
-                line.Transparency = 1
-                tracerLines[p.Name] = line
-            else
-                if tracerLines[p.Name] then
-                    tracerLines[p.Name].Visible = false
-                end
-            end
+                h.FillColor = _G.MainColor
+            elseif h then h:Destroy() end
+            
+            -- Tracers (Fallback-Methode ohne Drawing-Library)
+            local tName = "Tracer_" .. p.Name
+            local existing = sg:FindFirstChild(tName)
+            
+            if _G.Tracers then
+                local pos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(char.HumanoidRootPart.Position)
+                if onScreen then
+                    if not existing then
+                        existing = Instance.new("Frame", sg)
+                        existing.Name = tName
+                        existing.BorderSizePixel = 0
+                        existing.AnchorPoint = Vector2.new(0.5, 0.5)
+                    end
+                    local from = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
+                    local to = Vector2.new(pos.X, pos.Y)
+                    local dist = (to - from).Magnitude
+                    existing.Size = UDim2.new(0, dist, 0, 1)
+                    existing.Position = UDim2.new(0, (from.X + to.X) / 2, 0, (from.Y + to.Y) / 2)
+                    existing.Rotation = math.deg(math.atan2(to.Y - from.Y, to.X - from.X))
+                    existing.BackgroundColor3 = _G.MainColor
+                    existing.Visible = true
+                elseif existing then existing.Visible = false end
+            elseif existing then existing:Destroy() end
         end
     end
 end)
 
--- 5. LOOT SCANNER LOOP
+-- 4. LOOT LOGIK
 spawn(function()
     while wait(5) do
         if _G.LootESP then
-            for _, item in pairs(workspace:GetDescendants()) do
-                if item:IsA("Model") and (item:FindFirstChild("ItemProxy") or item.Name:find("Crate")) then
-                    if not item:FindFirstChild("LootHighlight") then
-                        local h = Instance.new("Highlight", item)
-                        h.Name = "LootHighlight"
-                        h.FillColor = Color3.new(0, 1, 0)
-                        h.FillTransparency = 0.5
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("Model") and (v:FindFirstChild("ItemProxy") or v.Name:find("Crate")) then
+                    if not v:FindFirstChild("LootH") then
+                        local lh = Instance.new("Highlight", v)
+                        lh.Name = "LootH"
+                        lh.FillColor = Color3.new(0, 1, 0)
                     end
                 end
             end
@@ -144,9 +132,7 @@ spawn(function()
     end
 end)
 
--- Menü mit K öffnen/schließen
-UIS.InputBegan:Connect(function(i)
-    if i.KeyCode == Enum.KeyCode.K then main.Visible = not main.Visible end
-end)
+-- K-Key
+UIS.InputBegan:Connect(function(i) if i.KeyCode == Enum.KeyCode.K then frame.Visible = not frame.Visible end end)
 
-print("&b&lElehxy&d&lSMP &c» &r Elite Hub V10 ist scharfgeschaltet!")
+print("&b&lElehxy&d&lSMP &c» &r V11 Geladen!")
